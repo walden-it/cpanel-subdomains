@@ -68,7 +68,7 @@ $mycnf .= "password = ".$new_password."\n";
 $mycnf .= "database = ".$new_database."\n";
 $mycnf .= "host = localhost\n";
 
-$config_file = file_get_contents($skel_dir."/config.php");
+$config_file = file_get_contents($skel_dir."/admin/config.php");
 $config_file = str_replace("%%DB_USER%%", $new_user, $config_file, &$count = null);
 $config_file = str_replace("%%DB_PASS%%", $new_pass, $config_file, &$count = null);
 $config_file = str_replace("%%DB_NAME%%", $new_database, $config_file, &$count = null);
