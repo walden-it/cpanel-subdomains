@@ -68,7 +68,7 @@ $mycnf .= "database = ".$new_database."\n";
 $mycnf .= "host = localhost\n";
 
 file_put_contents($subdomain_dir."/.my.cnf",$mycnf);
-shell("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user."-p".$new_password " ".$new_database);
+shell("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user."-p".$new_password." ".$new_database);
 
 
 }
