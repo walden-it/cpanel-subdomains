@@ -49,6 +49,7 @@ global $db_user_root;
 global $db_pass_root;
 global $domain_root;
 global $skel_dir;
+global $domain;
 
 $subdomain_dir = $domain_root."/".$user['subdomain'];
 
@@ -67,8 +68,26 @@ $mycnf .= "password = ".$new_password."\n";
 $mycnf .= "database = ".$new_database."\n";
 $mycnf .= "host = localhost\n";
 
-file_put_contents($subdomain_dir."/.my.cnf",$mycnf);
-shell("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user."-p".$new_password." ".$new_database);
+$config_file = file_get_contents($skel_dir."/config.php");
+$config_file = str_replace("%%DB_USER%%", $new_user, $config_file, &$count = null);
+$config_file = str_replace("%%DB_PASS%%", $new_pass, $config_file, &$count = null);
+$config_file = str_replace("%%DB_NAME%%", $new_database, $config_file, &$count = null);
+$config_file = str_replace("%%FQDN%%", $user['subdomain'].$domain, $config_file, &$count = null);
+$config_file = str_replace("%%DOMAIN_ROOT%%", $domain_root, $config_file, &$count = null);
+$config_file = str_replace("%%SUBDOMAIN%%", $user['subdomain'], $config_file, &$count = null);
+
+$admin_config_file = file_get_contents($skel_dir."/admin-config.php");
+$admin_config_file = str_replace("%%DB_USER%%", $new_user, $admin_config_file, &$count = null);
+$admin_config_file = str_replace("%%DB_PASS%%", $new_pass, $admin_config_file, &$count = null);
+$admin_config_file = str_replace("%%DB_NAME%%", $new_database, $admin_config_file, &$count = null);
+$admin_config_file = str_replace("%%FQDN%%", $user['subdomain'].$domain, $admin_config_file, &$count = null);
+$admin_config_file = str_replace("%%DOMAIN_ROOT%%", $domain_root, $admin_config_file, &$count = null);
+$admin_config_file = str_replace("%%SUBDOMAIN%%", $user['subdomain'], $admin_config_file, &$count = null);
+unlink($subdomain_dir."/admin/config.php");
+
+file_put_contents($subdomain_dir."/admin/config.php",$config_file);
+
+shell("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user." -p".$new_password." ".$new_database);
 
 
 }
