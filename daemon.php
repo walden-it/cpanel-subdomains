@@ -48,6 +48,7 @@ global $opt;
 global $db_user_root;
 global $db_pass_root;
 global $domain_root;
+global $skel_dir;
 
 $subdomain_dir = $domain_root."/".$user['subdomain'];
 
@@ -67,6 +68,8 @@ $mycnf .= "database = ".$new_database."\n";
 $mycnf .= "host = localhost\n";
 
 file_put_contents($subdomain_dir."/.my.cnf",$mycnf);
+shell("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user."-p".$new_password " ".$new_database);
+
 
 }
 
