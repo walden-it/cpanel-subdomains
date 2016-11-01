@@ -20,6 +20,18 @@ function get_users($status = "pending")
 	return($users);	
 }
 
+function create_cron($user)
+{
+	global $domain_root;
+	global $skel_dir;
+	
+	$user_dir = $domain_root."/".$user['subdomain'];	
+	$cron_location = "/etc/cron.d/cron_".$user['subdomain'];
+	$cron_template = file_get_contents($skel_dir."/cron");
+	$cron_data = str_replace("%%USER_DIR%%", $user_dir, $cron_template);
+	file_put_contents($cron_location, $cron_data);	
+	
+}
 function copy_skel($user)
 {
 	
@@ -84,7 +96,10 @@ foreach($users as $user)
 			
 	create_mysql($user);
 		
-	update_user($user['id_users']);	
+	update_user($user['id_users']);
+	
+	create_cron($user);
+		
 
 }
 	$strSubdomains = implode("\n",$subdomains);	
