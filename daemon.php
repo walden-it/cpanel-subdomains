@@ -70,15 +70,15 @@ $mycnf .= "host = localhost\n";
 
 $config_file = file_get_contents($skel_dir."/admin/config.php");
 $config_file = str_replace("%%DB_USER%%", $new_user, $config_file, &$count = null);
-$config_file = str_replace("%%DB_PASS%%", $new_pass, $config_file, &$count = null);
+$config_file = str_replace("%%DB_PASS%%", $new_password, $config_file, &$count = null);
 $config_file = str_replace("%%DB_NAME%%", $new_database, $config_file, &$count = null);
-$config_file = str_replace("%%FQDN%%", $user['subdomain'].$domain, $config_file, &$count = null);
+$config_file = str_replace("%%FQDN%%", $user['subdomain'].".".$domain, $config_file, &$count = null);
 $config_file = str_replace("%%DOMAIN_ROOT%%", $domain_root, $config_file, &$count = null);
 $config_file = str_replace("%%SUBDOMAIN%%", $user['subdomain'], $config_file, &$count = null);
 
 $admin_config_file = file_get_contents($skel_dir."/admin-config.php");
 $admin_config_file = str_replace("%%DB_USER%%", $new_user, $admin_config_file, &$count = null);
-$admin_config_file = str_replace("%%DB_PASS%%", $new_pass, $admin_config_file, &$count = null);
+$admin_config_file = str_replace("%%DB_PASS%%", $new_password, $admin_config_file, &$count = null);
 $admin_config_file = str_replace("%%DB_NAME%%", $new_database, $admin_config_file, &$count = null);
 $admin_config_file = str_replace("%%FQDN%%", $user['subdomain'].$domain, $admin_config_file, &$count = null);
 $admin_config_file = str_replace("%%DOMAIN_ROOT%%", $domain_root, $admin_config_file, &$count = null);
@@ -87,7 +87,7 @@ unlink($subdomain_dir."/admin/config.php");
 
 file_put_contents($subdomain_dir."/admin/config.php",$config_file);
 
-shell("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user." -p".$new_password." ".$new_database);
+shell_exec("cat ".$skel_dir."/dump.sql |  mysql -u".$new_user." -p".$new_password." ".$new_database);
 
 
 }
@@ -106,13 +106,13 @@ foreach($users as $user)
 	$subdomains[] = $domain.";".$user['subdomain'];
 	$strSubdomains = implode($subdomains,"\n");
 	
-	/*
+	
 	file_put_contents($tmp_filename, $strSubdomains);
 	shell_exec("php cpanel_subdomains.php ".$tmp_filename);
 	unlink($tmp_filename);
-*/
 
-	mkdir($domain_root."/".$user['subdomain']);
+
+	//mkdir($domain_root."/".$user['subdomain']);
 	
 	copy_skel($user);
 			
@@ -122,9 +122,12 @@ foreach($users as $user)
 	
 	create_cron($user);
 		
-
+	# Fix permissions for ftp/sftp
+	shell_exec("chown -R".$cpanel_user.":".$cpanel_user $domain_root."/".$user['subdomain']);	
+	shell_exec("find ".$domain_root."/".$user['subdomain']." -type d -exec chmod 775 '{}' \;");	
+	shell_exec("find ".$domain_root."/".$user['subdomain']." -type f -exec chmod 644 '{}' \;");	
 }
-	$strSubdomains = implode("\n",$subdomains);	
+
 
 	
 }
